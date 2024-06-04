@@ -5,7 +5,7 @@ const Footer = () => {
     return (
         <footer className="footer p-10 bg-base-200 text-base-content">
         <aside>
-          <p className="text-yellow-200 text-xl">Fresh Food Ltd.<br/>Providing reliable tech since 2024</p>
+          <p className="text-blue-500 text-xl">Room Booking App<br/> Shalahuddin IT Teach . Since 2024</p>
         </aside> 
         <nav>
           <h6 className="footer-title">Services</h6> 
