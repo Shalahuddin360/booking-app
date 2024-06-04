@@ -25,12 +25,11 @@ const Login = () => {
     const form = event.target;
     const email = form.email.value;
     const password = form.password.value;
-    // console.log(email, password);
+    console.log(email, password);
 
     signIn(email, password)
       .then((result) => {
         console.log(result.user);
-
         toast("Login Successfully");
         form.reset();
         navigate(from, { replace: true });
@@ -47,6 +46,7 @@ const Login = () => {
       .then((result) => {
         setUser(result.user);
         console.log(result.user);
+        toast.success('Google Login Successfully')
         navigate(from, { replace: true });
       })
       .catch((error) => {

@@ -3,52 +3,80 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useContext, useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { TbFidgetSpinner } from "react-icons/tb";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { AuthContext } from "../components/providers/AuthProvider";
 
-
 const Registration = () => {
-  const {
-    setUser,
-    setLoading,
-    createUser,
-    signInWithGoogle,
-    loading
-  } = useContext(AuthContext);
+  const { setUser, setLoading, createUser, signInWithGoogle, loading,updateUserProfile }=useContext(AuthContext);
 
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || "/";
 
-
-  const [error,setError] = useState('');
+  const [error, setError] = useState("");
 
   //handle submit or user registration
-  
+
   const handleSubmit = (event) => {
     event.preventDefault();
     const form = event.target;
     const name = form.name.value;
     const email = form.email.value;
     const password = form.password.value;
-    console.log(name,email,password)
-    setError('')
-    createUser(email,password)
-    .then(result=>{
-      const loggedUser = result.user
-      console.log(loggedUser)
-      toast('Registration Successfully')
-      setError('')
-      navigate(from, { replace: true });
+    // image upload
+    const image = form.image.files[0];
+    //  console.log(image)
+    const formData = new FormData();
+    formData.append("image", image);
+
+    const url = `https://api.imgbb.com/1/upload?key=${
+      import.meta.env.VITE_IMGBB_KEY
+    }`;
+    // console.log(url)
+
+    fetch(url, {
+      method: "POST",
+      body: formData,
     })
-    .catch(error=>{
-      console.log(error);
-      setError(error.message)
-      toast.error(error.message)
-      setLoading(false)
-    })
-    
+      .then((res) => res.json())
+      .then((imgData) => {
+        const imgUrl = imgData.data.display_url;
+        // console.log(imgUrl);
+        createUser(email, password)
+          .then((result) => {
+            // console.log(result.user);
+            toast.success("Register Successfully")
+            navigate('/login')
+            updateUserProfile(name, imgUrl)
+        
+              .then(() => {
+                // save user to database
+                setUser(result.user);
+                toast.success("Update Profile Successfully");
+                form.reset();
+                navigate(from, { replace: true });
+                navigate("/login")
+              })
+              .catch((error) => {
+                setLoading(false);
+                console.log(error.message);
+                toast.error(error.message);
+              });
+          })
+          .catch((error) => {
+            setLoading(false);
+            console.log(error.message);
+            toast.error(error.message);
+          });
+      })
+      
+      .catch((error) => {
+        // console.log(error);
+        setError(error.message);
+        toast.error(error.message);
+        setLoading(false);
+      });
   };
 
   // handleGoogle Sign in
@@ -56,8 +84,8 @@ const Registration = () => {
     signInWithGoogle()
       .then((result) => {
         console.log(result.user);
-       
-        setUser(result.user)
+        toast.success('Google Register Successfully')
+        setUser(result.user);
         navigate("/");
       })
       .catch((error) => {
@@ -71,8 +99,8 @@ const Registration = () => {
     <div className="flex justify-center items-center min-h-screen">
       <div className="flex flex-col max-w-md p-6 rounded-md sm:p-10 bg-gray-100 text-gray-900">
         <div className="mb-8 text-center">
-          <h1 className="my-3 text-4xl font-bold">Sign Up</h1>
-          <p className="text-sm text-gray-400">Welcome to Recipe App</p>
+          <h1 className="my-3 text-4xl font-bold">Register</h1>
+          <p className="text-sm text-gray-400">Welcome to Room Booking App</p>
         </div>
         <form
           onSubmit={handleSubmit}
@@ -94,7 +122,19 @@ const Registration = () => {
                 data-temp-mail-org="0"
               />
             </div>
-   
+            <div>
+              <label htmlFor="image" className="block mb-2 text-sm">
+                Select Image:
+              </label>
+              <input
+                required
+                type="file"
+                id="image"
+                name="image"
+                accept="image/*"
+              />
+            </div>
+
             <div>
               <label htmlFor="email" className="block mb-2 text-sm">
                 Email address
@@ -130,17 +170,14 @@ const Registration = () => {
             <button
               type="submit"
               className="bg-rose-500 w-full rounded-md py-3 text-white"
-             
             >
-              {
-              loading ? (
+              {loading ? (
                 <TbFidgetSpinner size={32} className="m-auto animate-spin" />
               ) : (
                 "Continue"
-              )
-              }
+              )}
             </button>
-            <ToastContainer/>
+            <ToastContainer />
           </div>
         </form>
         <div className="flex items-center pt-4 space-x-1">
@@ -166,13 +203,11 @@ const Registration = () => {
           >
             Login
           </Link>
-          
         </p>
         <p className="text-red-300">{error}</p>
       </div>
     </div>
   );
-
 };
 
 export default Registration;
