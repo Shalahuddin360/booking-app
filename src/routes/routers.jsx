@@ -1,4 +1,5 @@
 import { createBrowserRouter } from "react-router-dom";
+import RoomDetails from "../components/RoomDetails/RoomDetails";
 import DashboardLayout from "../layouts/DashboardLayout";
 import MainLayout from "../layouts/MainLayout";
 import About from "../pages/About";
@@ -15,6 +16,11 @@ const router = createBrowserRouter([
       {
         index: true,
         element: <Home />,
+      },
+      {
+        path:'/room/:id',
+        element: <PrivateRoutes><RoomDetails/></PrivateRoutes>
+
       },
       {
         path: "/about",

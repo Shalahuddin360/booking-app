@@ -6,7 +6,7 @@ import MenuDropDown from "../MenuDropDown/MenuDropDown";
 import DarkLightMode from "../theme-changer/DarkLightMode";
 import Logos from "./Logo/Logos";
 
-export default function Navbar() {
+export default function Headers() {
   // const { user, logOut } = useContext(AuthContext);
 
   return (
